@@ -35,7 +35,7 @@ namespace WebApplication5.Controllers
         {
             try
             {
-                var genre = await _context.Genre.SingleOrDefaultAsync(g => g.Id == id);
+                var genre = await _context.Genre.SingleOrDefaultAsync(g => g.Id == id); 
                 if (genre == null)
                 {
                     return NotFound();
