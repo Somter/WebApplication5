@@ -15,112 +15,81 @@ namespace WebApplication5.Controllers
             _context = context;
         }
 
-        // GET: api/<GenreController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Genre>>> Get()
+        public async Task<ActionResult<IEnumerable<Genre>>> GetGenres()
         {
-            try
-            {
-                var genres = await _context.Genre.ToListAsync();
-                return Ok(genres);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return await _context.Genres.ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Genre>> GetGenre(int id)
         {
-            try
+            var genre = await _context.Genres.FindAsync(id);
+
+            if (genre == null)
             {
-                var genre = await _context.Genre.SingleOrDefaultAsync(g => g.Id == id); 
-                if (genre == null)
-                {
-                    return NotFound();
-                }
-                return Ok(genre);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            return genre;
         }
 
-        // POST api/<GenreController>
         [HttpPost]
-        public async Task<ActionResult<Genre>> AddGenre(Genre genre)
+        public async Task<ActionResult<Genre>> PostGenre(Genre genre)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
+            _context.Genres.Add(genre);
+            await _context.SaveChangesAsync();
 
-                _context.Genre.Add(genre);
-                await _context.SaveChangesAsync();
-
-                return Ok(genre);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return CreatedAtAction(nameof(GetGenre), new { id = genre.Id }, genre);
         }
 
-        // PUT api/<GenreController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<Genre>> EditGenre(int id, Genre genre)
+        public async Task<IActionResult> PutGenre(int id, Genre genre)
         {
+            if (id != genre.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(genre).State = EntityState.Modified;
+
             try
             {
-                var _genre = await _context.Genre.SingleOrDefaultAsync(g => g.Id == id);
-
-                if (_genre == null)
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!GenreExists(id))
                 {
                     return NotFound();
                 }
-
-                _genre.Name = genre.Name;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(_genre);
+                else
+                {
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            return NoContent();
         }
 
-        // DELETE api/<GenreController>/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Genre>> DeleteGenre(int id)
+        public async Task<IActionResult> DeleteGenre(int id)
         {
-            try
+            var genre = await _context.Genres.FindAsync(id);
+            if (genre == null)
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                var genre = await _context.Genre.SingleOrDefaultAsync(g => g.Id == id);
-                if (genre == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Genre.Remove(genre);
-                await _context.SaveChangesAsync();
-
-                return Ok(genre);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            _context.Genres.Remove(genre);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool GenreExists(int id)
+        {
+            return _context.Genres.Any(e => e.Id == id);
         }
     }
 }

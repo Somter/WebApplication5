@@ -8,9 +8,10 @@ namespace WebApplication5.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         { }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Genre> Genre { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Genre> Genres { get; set; }
         public DbSet<Song> Songs { get; set; }
+        public DbSet<User> Users { get; set; }
 
     }
 }

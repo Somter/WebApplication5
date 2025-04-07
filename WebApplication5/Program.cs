@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication5.Models;
+using WebApplication5.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<PasswordHasher>();
+
 var app = builder.Build();
+
+app.UseDefaultFiles();   
+app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

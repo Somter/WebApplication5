@@ -15,110 +15,60 @@ namespace WebApplication5.Controllers
             _context = context;
         }
 
-        // GET: api/<SongController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Song>>> Get()
+        public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
         {
-            try
-            {
-                var songs = await _context.Songs.ToListAsync();
-                return Ok(songs);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return await _context.Songs.Include(s => s.User).Include(s => s.Genre).ToListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Song>> GetSong(int id)
         {
-            try
+            var song = await _context.Songs.Include(s => s.User).Include(s => s.Genre).FirstOrDefaultAsync(s => s.Id == id);
+
+            if (song == null)
             {
-                var song = await _context.Songs.SingleOrDefaultAsync(s => s.Id == id);
-                if (song == null)
-                {
-                    return NotFound();
-                }
-                return Ok(song);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            return song;
         }
 
-        // POST api/<SongController>
         [HttpPost]
-        public async Task<ActionResult<Song>> AddSong(Song song)
+        public async Task<ActionResult<Song>> PostSong(Song song)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                _context.Songs.Add(song);
-                await _context.SaveChangesAsync();
-
-                return Ok(song);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            _context.Songs.Add(song);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetSong), new { id = song.Id }, song);
         }
 
-        // PUT api/<SongController>/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<Song>> EditSong(int id, Song song)
+        public async Task<IActionResult> PutSong(int id, Song song)
         {
-            try
+            if (id != song.Id)
             {
-                var _song = await _context.Songs.SingleOrDefaultAsync(s => s.Id == id);
-
-                if (_song == null)
-                {
-                    return NotFound();
-                }
-
-                _song.Title = song.Title;
-                _song.FilePath = song.FilePath;
-                _song.UserId = song.UserId;
-                _song.GenreId = song.GenreId;
-
-                await _context.SaveChangesAsync();
-
-                return Ok(_song);
+                return BadRequest();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            _context.Entry(song).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        // DELETE api/<SongController>/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Song>> DeleteSong(int id)
+        public async Task<IActionResult> DeleteSong(int id)
         {
-            try
+            var song = await _context.Songs.FindAsync(id);
+            if (song == null)
             {
-                var song = await _context.Songs.SingleOrDefaultAsync(s => s.Id == id);
-                if (song == null)
-                {
-                    return NotFound();
-                }
-
-                _context.Songs.Remove(song);
-                await _context.SaveChangesAsync();
-
-                return Ok(song);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            _context.Songs.Remove(song);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
