@@ -209,16 +209,12 @@
         const userBaseUrl = 'https://localhost:7295/api/User';
 
         function showTab(tabId, btn) {
-            // Скрываем все вкладки
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
 
-            // Показываем нужную
             document.getElementById(tabId).style.display = 'block';
 
-            // Снимаем активность со всех кнопок
             document.querySelectorAll('.btn-group .btn').forEach(button => button.classList.remove('active'));
 
-            // Активируем текущую
             btn.classList.add('active');
         }
 
