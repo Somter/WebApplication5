@@ -5,7 +5,7 @@ using WebApplication5.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connection)); 
 
 builder.Services.AddCors(options =>
 {
